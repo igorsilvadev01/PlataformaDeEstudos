@@ -1,26 +1,41 @@
-# Codiva
+﻿# Codiva · Next.js
 
-Primeiro protótipo de uma plataforma de estudo de programação em português. Nome provisório, identidade própria e interface responsiva para desktop e celular.
+Plataforma de estudo de programação em português, construída com Next.js 16, React 19 e App Router. Interface responsiva para desktop e celular, com 12 lições introdutórias.
 
-## Executar
+## Rodar localmente
 
-Abra `dist/index.html` no navegador ou sirva a pasta `dist` com um servidor HTTP estático. Não há instalação nem etapa de build.
+Requer Node.js 20.9 ou superior e npm. Execute os comandos na pasta `codiva`:
 
-## Incluído
+```sh
+npm install
+npm run dev
+```
 
-- Painel de aprendizado, catálogo com filtros e detalhes das trilhas.
-- 12 lições com explicação, questão, correção e revisão.
-- Trilhas introdutórias de HTML/CSS, JavaScript, Python e lógica.
-- XP, conquistas, sequência de estudos e meta diária.
-- Nome e meta editáveis; progresso salvo em localStorage.
+Abra http://localhost:3000.
 
-O tempo da meta é estimado em três minutos por lição nova. Repetições não concedem XP adicional. Os dados pertencem ao navegador usado; não há autenticação ou sincronização.
+## Verificar e gerar a versão de produção
+
+```sh
+npm test
+npm run build
+```
+
+O build exporta o site estático para `out/`, conforme `output: "export"` em `next.config.mjs`. Essa pasta pode ser servida por um servidor HTTP estático. O projeto não usa `next start`, que exige uma implantação com servidor Next.js.
+
+## Estrutura
+
+- `app/layout.jsx`: documento, metadados e CSS global.
+- `app/page.jsx`: entrada do App Router.
+- `components/LearningApp.jsx`: componentes React do painel, catálogo, perfil, conquistas e lições.
+- `lib/courses.mjs`: conteúdo das quatro trilhas e suas 12 lições.
+- `lib/progress.mjs`: validação, conclusão de lições, sequência diária e compatibilidade com o progresso anterior.
+- `tests/progress.test.mjs`: testes de migração, XP, revisão e metas diárias.
+- `.openai/hosting.json`: identidade do Site existente e diretório de publicação `out`.
+
+## Comportamento
+
+O progresso mantém a chave `codiva-progress` do protótipo anterior. O navegador recupera os dados depois da montagem dos componentes; não há acesso a `localStorage` durante a renderização no servidor. O primeiro acerto concluído concede 20 XP, e revisões não concedem XP adicional. A meta estima três minutos por lição nova. Nome e meta são editáveis também pelo menu móvel.
 
 ## Próximas etapas
 
-1. Validar identidade, público, trilha prioritária e fluxo das lições.
-2. Expandir conteúdo e implementar editor com execução de código isolada.
-3. Adicionar contas e banco de dados para sincronizar o progresso.
-4. Preparar instalação como PWA; avaliar empacotamento Android e distribuição na Play Store.
-
-Esta versão é um protótipo web responsivo; não inclui APK Android, pagamentos, ranking ou certificados.
+Expandir as aulas, adicionar editor de código com execução isolada, contas e banco de dados, e preparar instalação como PWA ou aplicativo Android. A versão atual não inclui autenticação, sincronização, backend nem APK. Recursos de servidor exigirão rever a configuração de exportação estática.
