@@ -1,4 +1,7 @@
 import "./globals.css";
+import "./html-learning.css";
+import "./js-learning.css";
+import "./logic-learning.css";
 
 export const metadata = {
   title: "Codiva — programação em português",

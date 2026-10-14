@@ -1,13 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import HtmlLessonDialog from './HtmlLessonDialog.jsx';
+import CourseDetail from './CourseDetail.jsx';
 import { courses } from '../lib/courses.mjs';
-import { STORAGE_KEY, initialProgress, restoreProgress, lessonKey, completedCount, completeLesson, dateKey, studyStreak } from '../lib/progress.mjs';
+import { STORAGE_KEY, initialProgress, restoreProgress, lessonKey, completedCount, completeLesson, dateKey, studyStreak, foundationLessons, foundationCount, foundationComplete, developmentUnlocked } from '../lib/progress.mjs';
 
 const navigation = [
   { id: 'inicio', icon: '◫', label: 'Meu aprendizado', mobile: 'Aprender' },
   { id: 'trilhas', icon: '⌘', label: 'Explorar trilhas', mobile: 'Trilhas' },
   { id: 'pratica', icon: '⌨', label: 'Praticar', mobile: 'Praticar' },
+  { id: 'desenvolvimento', icon: '</>', label: 'Desenvolvimento', mobile: 'Criar' },
   { id: 'conquistas', icon: '♧', label: 'Conquistas', mobile: 'Conquistas' },
 ];
 
@@ -41,6 +45,7 @@ function Dashboard({ progress, onNavigate, onOpen, onStart }) {
       <section className="hero"><div className="hero-content"><div className="eyebrow">{total ? 'CONTINUE DE ONDE PAROU' : 'SUA JORNADA COMEÇA AQUI'}</div><h2>Pequenos passos.<br />Grandes possibilidades.</h2><p>Aprenda programação em português, uma lição de cada vez. Você não precisa saber nada para começar.</p><button className="primary" onClick={() => onStart(next, index)}>{total ? 'Continuar aprendendo' : 'Começar a aprender'} <span>→</span></button></div><div className="hero-art" aria-hidden="true"><div className="orb" /><div className="code-window"><div className="dots">•••</div><pre>{'<h1>\n  Olá, mundo!\n</h1>'}</pre></div><div className="floating-code">{'</>'}</div></div></section>
       <div className="section-head"><h2>Um caminho para cada ideia</h2><button className="text-button" onClick={() => onNavigate('trilhas')}>Ver todas as trilhas →</button></div>
       <div className="course-grid">{courses.map(c => <CourseCard key={c.id} course={c} progress={progress} onOpen={onOpen} />)}</div>
+      <section className="learning-roadmap" aria-labelledby="roadmap-title"><div className="roadmap-heading"><div><div className="eyebrow">SUA JORNADA</div><h2 id="roadmap-title">Do primeiro conceito ao seu projeto</h2></div><button className="text-button" onClick={() => onNavigate('desenvolvimento')}>Ver jornada →</button></div><div className="roadmap-steps"><div className="roadmap-step active"><span>1</span><div><strong>Fundamentos</strong><small>Conclua os 2 primeiros módulos de uma trilha.</small></div></div><div className={`roadmap-line ${developmentUnlocked(progress) ? 'complete' : ''}`} /><div className={`roadmap-step ${developmentUnlocked(progress) ? 'active' : 'locked'}`}><span>{developmentUnlocked(progress) ? '✓' : '2'}</span><div><strong>Desenvolvimento</strong><small>{developmentUnlocked(progress) ? 'Liberado: avance para projetos maiores.' : 'Será liberado automaticamente.'}</small></div></div></div></section>
       <section className="challenge"><div className="challenge-icon">⌨</div><div><h3>Sua dose diária de código</h3><p>Um desafio rápido para colocar a cabeça para funcionar.</p></div><button className="outline" onClick={() => onNavigate('pratica')}>Praticar agora →</button></section>
     </div><div className="right-col">
       <section className="panel"><div className="panel-title"><h3>Sua meta diária</h3><span className="target">◎</span></div><p>Consistência vale mais que pressa.</p><div className="ring-wrap"><div className="ring" style={{ '--angle': `${Math.min(minutes / progress.goal, 1) * 360}deg` }}><span>{Math.min(Math.round(minutes / progress.goal * 100), 100)}%</span></div><div className="ring-info"><strong>{minutes} de {progress.goal} min</strong><p>Tempo estimado pelas lições</p></div></div><div className="days">{days.map(d => <div key={d.key} className={`day ${d.done ? 'done' : ''}`}><span>{d.done ? '✓' : '·'}</span>{d.label}</div>)}</div></section>
@@ -55,22 +60,33 @@ function Catalog({ progress, onOpen }) {
   return <><div className="eyebrow">ENCONTRE SEU PRÓXIMO PASSO</div><h1>O que você quer criar?</h1><p className="intro">Escolha uma trilha e aprenda na prática. Todas começam do zero.</p><div className="filter">{['Todas', 'Web', 'Dados', 'Fundamentos'].map(f => <button key={f} className={filter === f ? 'active' : ''} aria-pressed={filter === f} onClick={() => setFilter(f)}>{f}</button>)}</div><div className="course-grid">{courses.filter(c => filter === 'Todas' || c.type === filter).map(c => <CourseCard key={c.id} course={c} progress={progress} onOpen={onOpen} />)}</div></>;
 }
 
-function CourseDetail({ course, progress, onBack, onStart }) {
-  return <><button className="text-button back" onClick={onBack}>← Voltar às trilhas</button><div className="eyebrow">TRILHA PARA INICIANTES</div><h1>{course.name}</h1><p className="intro">{course.desc}</p><p className="detail-meta">{course.lessons.length} lições interativas · cerca de {course.lessons.length * 3} minutos · {completedCount(course, progress)} concluídas</p><div className="lesson-list">{course.lessons.map((lesson, i) => {
-    const done = progress.done.includes(lessonKey(course, i));
-    return <div className="lesson-row" key={i}><span className="lesson-number">{done ? '✓' : i + 1}</span><div><h3>{lesson.title}</h3><p>Explicação + exercício · 20 XP na primeira conclusão</p></div><button className="outline" onClick={() => onStart(course, i)}>{done ? 'Revisar' : 'Começar'} →</button></div>;
-  })}</div></>;
-}
 
 function Practice({ progress, onStart }) {
-  return <><div className="eyebrow">APRENDER. TESTAR. REPETIR.</div><h1>Coloque suas ideias em prática.</h1><p className="intro">Revise um conceito rápido. Você pode repetir os exercícios quantas vezes quiser.</p><div className="section-head"><h2>Escolha seu desafio</h2></div><div className="course-grid">{courses.map(c => <button className="course" key={c.id} onClick={() => onStart(c, Math.min(completedCount(c, progress), c.lessons.length - 1))}><span className={`course-icon ${c.id}`}>{c.icon}</span><h3>{c.name}</h3><p>Um exercício guiado · cerca de 3 minutos</p><span className="text-button">Resolver desafio →</span></button>)}</div></>;
+  return <><div className="eyebrow">APRENDER. TESTAR. REPETIR.</div><h1>Coloque suas ideias em prática.</h1><p className="intro">Revise um conceito rápido. Você pode repetir os exercícios quantas vezes quiser.</p><div className="section-head"><h2>Escolha seu desafio</h2></div><div className="course-grid">{courses.map(c => <button className="course" key={c.id} onClick={() => onStart(c, Math.max(0, c.lessons.findIndex((_, i) => !progress.done.includes(lessonKey(c, i)))))}><span className={`course-icon ${c.id}`}>{c.icon}</span><h3>{c.name}</h3><p>Um exercício guiado · cerca de 3 minutos</p><span className="text-button">Resolver desafio →</span></button>)}</div></>;
+}
+
+function Development({ progress, onOpen }) {
+  const unlocked = developmentUnlocked(progress);
+  const completedFoundations = courses.filter(course => foundationComplete(course, progress));
+  return <><div className="eyebrow">FASE 2 · DESENVOLVIMENTO</div><h1>Transforme fundamentos em projetos.</h1><p className="intro">Escolha uma tecnologia, avance pelos módulos aplicados e termine com um projeto completo.</p>
+    <section className={`development-gate ${unlocked ? 'unlocked' : ''}`} aria-labelledby="development-status"><span className="gate-icon" aria-hidden="true">{unlocked ? '✓' : '◇'}</span><div><div className="eyebrow">{unlocked ? 'NOVA FASE LIBERADA' : 'COMO DESBLOQUEAR'}</div><h2 id="development-status">{unlocked ? `Fundamentos de ${completedFoundations.map(course => course.name).join(', ')} concluídos` : 'Conclua os fundamentos de uma trilha'}</h2><p>{unlocked ? 'Você já pode avançar. As outras tecnologias continuam disponíveis para estudar no seu ritmo.' : 'Finalize os dois primeiros módulos de HTML & CSS, JavaScript, Python ou Lógica. São 8 lições na trilha que você escolher.'}</p></div></section>
+    <div className="section-head"><h2>{unlocked ? 'Escolha seu próximo caminho' : 'Seu progresso nos fundamentos'}</h2></div>
+    <div className="development-grid">{courses.map(course => {
+      const basics = foundationLessons(course);
+      const done = foundationCount(course, progress);
+      const ready = foundationComplete(course, progress);
+      const advancedCount = course.lessons.length - basics.length;
+      return <article className={`development-card ${ready ? 'ready' : ''}`} key={course.id}><div className="development-card-top"><span className={`course-icon ${course.id}`}>{course.icon}</span><span className={`badge ${ready ? 'ready-badge' : ''}`}>{ready ? 'Pronto para avançar' : `${done}/${basics.length} fundamentos`}</span></div><h3>{course.name}</h3><p>{ready ? `${advancedCount} lições aplicadas, do nível básico ao projeto final.` : `Faltam ${basics.length - done} lições para liberar o desenvolvimento desta trilha.`}</p><ProgressBar value={done / basics.length * 100} /><button className={ready ? 'primary' : 'outline'} onClick={() => onOpen(course)}>{ready ? 'Continuar desenvolvendo →' : done ? 'Continuar fundamentos →' : 'Começar fundamentos →'}</button></article>;
+    })}</div>
+  </>;
 }
 
 function Achievements({ progress }) {
   const total = progress.done.length;
   const achievements = [
     { title: 'Primeira linha', text: 'Conclua sua primeira lição.', ok: total > 0, icon: '✦' },
-    { title: 'Trilha completa', text: 'Conclua as 3 lições de uma trilha.', ok: courses.some(c => completedCount(c, progress) === c.lessons.length), icon: '⚑' },
+    { title: 'Pronto para criar', text: 'Desbloqueie a fase de desenvolvimento.', ok: developmentUnlocked(progress), icon: '</>' },
+    { title: 'Trilha completa', text: 'Conclua todas as lições de uma trilha.', ok: courses.some(c => completedCount(c, progress) === c.lessons.length), icon: '⚑' },
     { title: 'Curiosidade sem limites', text: 'Acumule 100 XP estudando.', ok: total >= 5, icon: '♧' },
   ];
   return <><div className="eyebrow">CELEBRE CADA PASSO</div><h1>Seu esforço vira conquista.</h1><p className="intro">{total} lições concluídas · {total * 20} XP · {studyStreak(progress)} dias seguidos</p><div className="achievements">{achievements.map(a => <div key={a.title} className={`achievement ${a.ok ? '' : 'locked'}`}><div className="medal">{a.icon}</div><h3>{a.title}</h3><p>{a.text}</p><span className="badge">{a.ok ? 'Conquistada ✓' : 'Em construção'}</span></div>)}</div></>;
@@ -134,24 +150,43 @@ export default function LearningApp() {
     catch { setStorageUnavailable(true); }
   }, [progress, loaded]);
 
-  function navigate(next) { setView(next); setCourse(null); window.scrollTo(0, 0); }
-  function openCourse(next) { setView('trilhas'); setCourse(next); window.scrollTo(0, 0); }
+  function changePage(update) {
+    const commit = () => {
+      flushSync(update);
+      window.scrollTo(0, 0);
+    };
+    if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      commit();
+      return;
+    }
+    document.startViewTransition(commit);
+  }
+  function navigate(next) {
+    if (view === next && !course) return;
+    changePage(() => { setView(next); setCourse(null); });
+  }
+  function openCourse(next) {
+    changePage(() => { setView('trilhas'); setCourse(next); });
+  }
+  function closeCourse() { changePage(() => setCourse(null)); }
   function startLesson(next, index) { setLesson({ course: next, index }); }
+  const LessonComponent = lesson?.course.lessons[lesson.index].practice ? HtmlLessonDialog : LessonDialog;
   const initial = progress.name[0]?.toUpperCase() || 'A';
   const title = course ? `Explorar trilhas / ${course.name}` : navigation.find(n => n.id === view)?.label || 'Meu perfil';
 
   return <>
-    <aside className="sidebar"><a className="brand" href="#inicio" onClick={() => navigate('inicio')}><span className="brandmark">{'</>'}</span> codiva<span className="branddot">.</span></a><div className="workspace">SEU ESPAÇO DE APRENDIZADO</div><nav aria-label="Principal">{navigation.map(n => <button key={n.id} className={`nav ${view === n.id ? 'active' : ''}`} onClick={() => navigate(n.id)}><span>{n.icon}</span>{n.label}</button>)}</nav><div className="sidebar-bottom"><div className="small-code">{'{ você consegue }'}</div><h3>Um pouco todo dia.<br />Um futuro inteiro pela frente.</h3><p>Sua próxima conquista começa com uma linha de código.</p><span className="prototype">VERSÃO INICIAL · PROTÓTIPO</span></div><button className="profile" onClick={() => navigate('perfil')}><span className="avatar">{initial}</span><span><strong>{progress.name}</strong><small>Começando a jornada</small></span><span>⌄</span></button></aside>
+    <aside className="sidebar"><a className="brand" href="#inicio" onClick={event => { event.preventDefault(); navigate('inicio'); }}><span className="brandmark">{'</>'}</span> codiva<span className="branddot">.</span></a><div className="workspace">SEU ESPAÇO DE APRENDIZADO</div><nav aria-label="Principal">{navigation.map(n => <button key={n.id} className={`nav ${view === n.id ? 'active' : ''}`} aria-current={view === n.id ? 'page' : undefined} onClick={() => navigate(n.id)}><span>{n.icon}</span>{n.label}{n.id === 'desenvolvimento' && !developmentUnlocked(progress) && <small className="nav-lock" aria-label="Bloqueado">◇</small>}</button>)}</nav><div className="sidebar-bottom"><div className="small-code">{'{ você consegue }'}</div><h3>Um pouco todo dia.<br />Um futuro inteiro pela frente.</h3><p>Sua próxima conquista começa com uma linha de código.</p><span className="prototype">VERSÃO INICIAL · PROTÓTIPO</span></div><button className="profile" onClick={() => navigate('perfil')}><span className="avatar">{initial}</span><span><strong>{progress.name}</strong><small>{developmentUnlocked(progress) ? 'Fase de desenvolvimento' : 'Construindo fundamentos'}</small></span><span>⌄</span></button></aside>
     <div className="app"><header><span>{title}</span><div className="header-right"><span className="language">🇧🇷 Português</span><span className="divider" /><span title="Dias de estudo" className="streak">♨ <b>{loaded ? studyStreak(progress) : 0}</b></span><span className="xp">✦ <b>{progress.done.length * 20}</b> XP</span><button className="avatar mini" onClick={() => navigate('perfil')} aria-label="Abrir meu perfil">{initial}</button></div></header>
-    <main>{!loaded ? <div className="empty-card" role="status">Preparando seu aprendizado…</div> : <>
+    <main><div className="page-content" key={course ? `course-${course.id}` : view}>{!loaded ? <div className="empty-card" role="status">Preparando seu aprendizado…</div> : <>
       {storageUnavailable && <p className="feedback incorrect" role="status">O armazenamento deste navegador está indisponível. Seu progresso continuará nesta sessão.</p>}
       {view === 'inicio' && <Dashboard key={today} progress={progress} onNavigate={navigate} onOpen={openCourse} onStart={startLesson} />}
-      {view === 'trilhas' && (course ? <CourseDetail course={course} progress={progress} onBack={() => setCourse(null)} onStart={startLesson} /> : <Catalog progress={progress} onOpen={openCourse} />)}
+      {view === 'trilhas' && (course ? <CourseDetail course={course} progress={progress} onBack={closeCourse} onStart={startLesson} /> : <Catalog progress={progress} onOpen={openCourse} />)}
       {view === 'pratica' && <Practice progress={progress} onStart={startLesson} />}
+      {view === 'desenvolvimento' && <Development progress={progress} onOpen={openCourse} />}
       {view === 'conquistas' && <Achievements progress={progress} />}
       {view === 'perfil' && <Profile progress={progress} onSave={values => setProgress(p => ({ ...p, ...values }))} />}
-    </>}</main><footer>Feito para quem está começando. Feito em português.<span>codiva · primeiro esboço</span></footer></div>
-    <nav className="mobile-nav" aria-label="Navegação móvel">{navigation.map(n => <button key={n.id} className={view === n.id ? 'active' : ''} onClick={() => navigate(n.id)}>{n.icon}<small>{n.mobile}</small></button>)}<button className={view === 'perfil' ? 'active' : ''} onClick={() => navigate('perfil')}>◉<small>Perfil</small></button></nav>
-    {lesson && <LessonDialog key={lessonKey(lesson.course, lesson.index)} lessonState={lesson} progress={progress} onClose={() => setLesson(null)} onStart={startLesson} onComplete={(c, i) => setProgress(p => completeLesson(p, c, i))} />}
+    </>}</div></main><footer>Feito para quem está começando. Feito em português.<span>codiva · primeiro esboço</span></footer></div>
+    <nav className="mobile-nav" aria-label="Navegação móvel">{navigation.map(n => <button key={n.id} className={view === n.id ? 'active' : ''} aria-current={view === n.id ? 'page' : undefined} onClick={() => navigate(n.id)}>{n.icon}<small>{n.mobile}</small></button>)}<button className={view === 'perfil' ? 'active' : ''} aria-current={view === 'perfil' ? 'page' : undefined} onClick={() => navigate('perfil')}>◉<small>Perfil</small></button></nav>
+    {lesson && <LessonComponent key={lessonKey(lesson.course, lesson.index)} lessonState={lesson} progress={progress} onClose={() => setLesson(null)} onStart={startLesson} onComplete={(c, i) => setProgress(p => completeLesson(p, c, i))} />}
   </>;
 }

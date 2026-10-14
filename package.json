@@ -2,6 +2,18 @@
   "name": "codiva",
   "version": "0.2.0",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "test": "node --test tests/progress.test.mjs" },
-  "dependencies": { "next": "16.4.0", "react": "19.3.0", "react-dom": "19.3.0" }
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "test": "node --test tests/*.test.mjs",
+    "postinstall": "node scripts/prepare-python.mjs",
+    "predev": "node scripts/prepare-python.mjs",
+    "prebuild": "node scripts/prepare-python.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.0",
+    "pyodide": "314.0.7",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
 }
