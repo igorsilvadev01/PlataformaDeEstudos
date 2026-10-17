@@ -1,10 +1,55 @@
-# PlataformaDeEstudos
+# Codiva — programação em português
 
-Plataforma de Estudos — Codiva.
+Plataforma de estudos construída com Next.js 16, React 19 e App Router. A experiência combina explicação, pergunta e prática em **96 lições**: 24 de HTML & CSS, 24 de JavaScript, 24 de Python e 24 de lógica de programação.
 
-﻿# Codiva · Next.js
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Lições](https://img.shields.io/badge/lições-96-6D4AFF?style=flat-square)](#trilhas)
+[![Status](https://img.shields.io/badge/status-funcional-2EAD33?style=flat-square)](#como-funciona)
 
-Plataforma de estudo de programação em português, construída com Next.js 16, React 19 e App Router. Interface responsiva para desktop e celular, com 96 lições: 24 de HTML & CSS, 24 de JavaScript, 24 de Python e 24 de lógica.
+> Projeto educacional responsivo para aprender no próprio ritmo, praticar código no navegador e acompanhar a evolução sem depender de um serviço externo de execução.
+
+## Visão da plataforma
+
+![Painel inicial da Codiva com progresso, trilhas e meta diária](docs/screenshots/codiva-inicio.png)
+
+O painel reúne progresso, meta diária, XP, conquistas e acesso às quatro trilhas. A navegação foi desenhada para funcionar em desktop e celular.
+
+![Página da trilha JavaScript com módulos, progresso e lições](docs/screenshots/codiva-trilha-javascript.png)
+
+Cada trilha organiza as 24 lições em seis etapas progressivas, apresenta o próximo passo e mantém as referências complementares acessíveis.
+
+![Editor JavaScript da Codiva com código e console lado a lado](docs/screenshots/codiva-editor-javascript.png)
+
+Na prática, o estudante escreve código, executa no navegador, acompanha o console e recebe uma validação baseada nos objetivos da aula.
+
+## Como funciona
+
+1. **Escolha uma trilha:** HTML & CSS, JavaScript, Python ou lógica de programação.
+2. **Entenda o conceito:** cada lição começa com uma explicação curta e um exemplo.
+3. **Responda:** uma pergunta verifica a compreensão antes da prática.
+4. **Pratique:** o exercício executa ou valida a solução e mostra os objetivos atendidos.
+5. **Acompanhe o progresso:** conclusões, XP, sequência diária, rascunhos e meta ficam salvos no navegador.
+
+## Trilhas
+
+| Trilha | Experiência prática | Referências |
+| --- | --- | --- |
+| **HTML & CSS** | Editor com prévia isolada e validação via DOM/CSSOM. | [MDN — HTML](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Basic_HTML_syntax), [freeCodeCamp — Responsive Web Design](https://www.freecodecamp.org/news/freecodecamp-responsive-web-design-study-guide), [The Odin Project — HTML Boilerplate](https://www.theodinproject.com/lessons/foundations-html-boilerplate) |
+| **JavaScript** | Execução descartável em Web Worker, console, limites de tempo e testes comportamentais. | [MDN — JavaScript](https://developer.mozilla.org/pt-BR/docs/Learn_web_development/Core/Scripting), [freeCodeCamp — JavaScript](https://www.freecodecamp.org/news/learn-javascript-for-beginners/), [The Odin Project — Variáveis e operadores](https://www.theodinproject.com/lessons/foundations-variables-and-operators) |
+| **Python** | Python real no navegador com Pyodide/WebAssembly, console e verificação de resultados. | [Tutorial oficial do Python](https://docs.python.org/pt-br/3/tutorial/), [freeCodeCamp — Python Handbook](https://www.freecodecamp.org/news/the-python-handbook/), [Pyodide](https://pyodide.org/) |
+| **Lógica** | Ordenação de passos, respostas numéricas, testes de mesa e cenários em pseudocódigo. | [CS50 — algoritmos e pseudocódigo](https://cs50.harvard.edu/x/2026/notes/0/), [Code.org — currículo de Ciência da Computação](https://code.org/cs/curriculum) |
+
+## Destaques técnicos
+
+- Aplicação responsiva exportada estaticamente pelo Next.js.
+- JavaScript executado fora da interface em workers descartáveis, sem acesso ao DOM ou ao armazenamento.
+- Python executado localmente com Pyodide; nenhum serviço externo recebe o código do estudante.
+- Prévia HTML em iframe isolado, com scripts, rede e envios bloqueados.
+- Progresso, rascunhos, XP e sequência diária persistidos no navegador.
+- Exercícios cobertos por testes automatizados de progresso, JavaScript, Python e lógica.
+
+Veja também o estudo de caso no [portfólio de Igor Silva](https://igorsilvadev01.github.io/Portfolio/#projetos).
 
 ## Rodar localmente
 
