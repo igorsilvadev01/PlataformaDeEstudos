@@ -1,5 +1,7 @@
 # Codiva — programação em português
 
+[🚀 Abrir demonstração online](https://igorsilvadev01.github.io/PlataformaDeEstudos/)
+
 Plataforma de estudos construída com Next.js 16, React 19 e App Router. A experiência combina explicação, pergunta e prática em **96 lições**: 24 de HTML & CSS, 24 de JavaScript, 24 de Python e 24 de lógica de programação.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
