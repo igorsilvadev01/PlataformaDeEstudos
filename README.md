@@ -1,3 +1,7 @@
+# PlataformaDeEstudos
+
+Plataforma de Estudos — Codiva.
+
 ﻿# Codiva · Next.js
 
 Plataforma de estudo de programação em português, construída com Next.js 16, React 19 e App Router. Interface responsiva para desktop e celular, com 96 lições: 24 de HTML & CSS, 24 de JavaScript, 24 de Python e 24 de lógica.
